@@ -1,13 +1,15 @@
-import requests
 from datetime import datetime
 from decimal import Decimal
 from http import HTTPStatus
 from re import sub
 
+import requests
 from advertools import emoji
-from common import config, set_logger, aio_log_method_call
-from slack_bot.slack import SlackAPI
+
+from common import aio_log_method_call, config, set_logger
 from common.redis import redis_client
+from slack_bot.slack import SlackAPI
+
 
 class DepositCheckAPI:
     def __init__(self):
@@ -27,14 +29,12 @@ class DepositCheckAPI:
         event_id = kwargs.get("event_id") or thread_ts
         reaction_ts = kwargs.get("reaction_ts") or thread_ts
 
-        # Redis 기반 중복 처리 방지
         redis_key = f"slack_event:{event_id}"
-        existed = redis_client.get(redis_key)
-        if existed:
-            self.logger.info(f"이미 처리한 이벤트입니다. event_id: {event_id}")
+        if redis_client.get(redis_key):
+            # 중복이면 조용히 return (로깅 포함 전부 생략)
             return
 
-        redis_client.setex(redis_key, 600, "1")  # 10분 중복 방지 TTL 설정
+        redis_client.setex(redis_key, 600, "1")
 
         txt_content = txt_list.split() if isinstance(txt_list, str) else txt_list
 
