@@ -1,4 +1,4 @@
-# Slack Deposit Server
+# Slack Bot Server
 
 Slack 채널의 입금 메시지를 자동 파싱 및 처리하고, 응답 메시지 전송과 이모지 반응을 통해 결과를 시각적으로 피드백하는 FastAPI 기반 서버입니다. 중복 이벤트 처리 방지를 위해 Redis를 사용합니다.
 
