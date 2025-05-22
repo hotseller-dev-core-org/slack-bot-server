@@ -73,18 +73,69 @@ async def handle_event(request: Request):
     # # ===========
 
     # return JSONResponse(content={"ok": True}, status_code=200)
+    raw_body = await request.body()
     try:
-        raw_body = await request.body()
+        # JSON 형식 처리 시도
         body = json.loads(raw_body)
     except Exception as e:
-        LOGGER.error(f"JSON decode error: {e}, raw_body: {raw_body}")
-        return JSONResponse(status_code=400, content={"error": "Invalid JSON"})
+        # 만약 application/x-www-form-urlencoded 형태라면 수동 처리
+        try:
+            form = await request.form()
+            payload = form.get("payload")
+            if payload:
+                # UploadFile일 경우 대비 → 내용을 읽고 디코딩
+                if hasattr(payload, "read"):
+                    payload_str = (await payload.read()).decode("utf-8")
+                else:
+                    payload_str = str(payload)
+
+                body = json.loads(payload_str)
+
+            else:
+                raw_data = form.get("data", "{}")
+                if hasattr(raw_data, "read"):
+                    raw_data_str = (await raw_data.read()).decode("utf-8")
+                else:
+                    raw_data_str = str(raw_data)
+
+                body = json.loads(raw_data_str)
+        except Exception as e2:
+            LOGGER.error(f"JSON decode error: {e}, fallback error: {e2}, raw_body: {raw_body}")
+            return JSONResponse(status_code=400, content={"error": "Invalid JSON"})
 
     LOGGER.info(f"Slack Event Body: {body}")
 
-    # Slack challenge 검증 처리
+    # ✅ Slack challenge 응답
     if "challenge" in body:
         return JSONResponse(content={"challenge": body["challenge"]})
+
+    # ✅ 이벤트 처리
+    event = body.get("event", {})
+    if not event:
+        return Response(status_code=204)
+
+    if event.get("subtype") in ["bot_message", "message_changed"]:
+        return Response(status_code=204)
+
+    channel_id = event.get("channel")
+    thread_ts = event.get("ts")
+    text = event.get("text", "")
+    event_id = body.get("event_id", thread_ts)
+
+    if "입금" not in text:
+        LOGGER.info("입금 관련 메세지가 아님")
+        return Response(status_code=204)
+
+    await deposit_api.processing(
+        channel_id=channel_id,
+        thread_ts=thread_ts,
+        txt_list=text,
+        elements_list=[],
+        event_id=event_id,
+        reaction_ts=event.get("ts") or thread_ts
+    )
+
+    return JSONResponse(content={"ok": True}, status_code=200)
 
 
 
