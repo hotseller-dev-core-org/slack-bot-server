@@ -37,7 +37,7 @@ class DepositCheckAPI:
 
         redis_client.setex(redis_key, 600, "1")
 
-        txt_content = txt_list.split() if isinstance(txt_list, str) else txt_list
+        txt_content = txt_list.split() if isinstance(txt_list, str) else txt_list # e.g. ['2025/05/26', '16:00', '입금', '20000원', '박다예']
 
         try:
             parse_res = self._parse_message(channel_id, txt_content, elements_list)
@@ -46,6 +46,7 @@ class DepositCheckAPI:
             await self.send_result(channel_id, thread_ts, str(e))
             return
 
+        # e.g. parse_res = {'date': '2025-05-26 19:16', 'to': 'None', 'message': '2025/05/26 16:00 입금 20000원 박다예'}
         if not parse_res:
             return
 
@@ -129,12 +130,13 @@ class DepositCheckAPI:
             self.logger.info(f"api_url: {api_url}")
 
             # TODO:
-            # resp = requests.post(api_url, json=payload, verify=False)
-            resp = requests.Response()
-            resp.status_code = HTTPStatus.OK
-            resp.json = lambda: {"status": "success"}
+            resp = requests.post(api_url, json=payload, verify=False)
+            # TEST:
+            # resp = requests.Response()
+            # resp.status_code = HTTPStatus.OK
+            # resp.json = lambda: {"status": "success"}
 
-            self.logger.info(f"resp: {resp} / {resp.text}")
+            self.logger.info(f"\n_handle_api_response() resp: {resp}\n{resp.text}\n{resp.status_code}")
 
             if resp.status_code == HTTPStatus.OK:
                 data = resp.json()
