@@ -21,9 +21,7 @@ _JAPAN_NIHON_DEPOSIT_CHANNEL_ID: Final[str] = "C05LS9VF5DY"
 _JAPAN_TOMO_DEPOSIT_CHANNEL_ID: Final[str] = "C06C3HG1Q0K"
 _JAPAN_FOLLOWERLAB_DEPOSIT_CHANNEL_ID: Final[str] = "C08F10YTBKK"
 _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: Final[str] = "C08BR1P920H"
-# TODO: TEST
-# _SERVICE_TEAM_SMS_CHANNEL_ID: Final[str] = "C05NYEWHK1S"
-_SERVICE_TEAM_SMS_CHANNEL_ID: Final[str] = "C06MFPLN81W"
+_SERVICE_TEAM_SMS_CHANNEL_ID: Final[str] = "C05NYEWHK1S"
 
 # 에러 코드 상수
 class ErrorCodes:
@@ -49,8 +47,9 @@ class ChannelGroups:
 API_URL_MAPPING = {
     _HOT_AUTO_DEPOSIT_CHANNEL_ID: "http://10.0.23.222/api/point",
     _SNS_TOOL_DEPOSIT_CHANNEL_ID: "https://api.snstool.co.kr/api/point",
-    _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: "http://10.0.2.216/partner/point/auto-charge",
-    _SERVICE_TEAM_SMS_CHANNEL_ID: "http://api.hotpartners.co.kr/partner/point/auto-charge",
+    # TODO: TEST
+    _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: "http://api.hotpartners.co.kr/partner/point/auto-charge",
+    # _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: "http://10.0.2.216/partner/point/auto-charge",
 }
 
 JAPAN_MAPPING_INFO: Dict[str, str] = {
@@ -262,7 +261,7 @@ class DepositCheckAPI:
         except Exception as e:
             result = ProcessingResult(
                 emoji_name='x',
-                message=f"실패\n - 사유: {e}\n"
+                message=f"실패\n - 사유: {e}"
             )
 
         # 결과 전송
