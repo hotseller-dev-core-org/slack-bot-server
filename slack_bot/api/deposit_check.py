@@ -40,7 +40,7 @@ class APIConfig:
         'HOT_AUTO': "http://10.0.23.222/api/point",
         'SNS_TOOL': "https://api.snstool.co.kr/api/point",
         'HOT_PARTNERS': "http://10.0.2.216/partner/point/auto-charge",
-        'JAPAN_SMS': "http://10.0.2.21/api/payment/deposit",
+        'SELF_MARKETING': "http://10.0.2.21/api/payment/deposit",
     }
 
     # 테스트 환경 URL
@@ -48,7 +48,7 @@ class APIConfig:
         'HOT_AUTO': "https://api.growthcore.co.kr/api/point", # TODO: TEST완료
         'SNS_TOOL': "https://api.snstool.co.kr/api/point",
         'HOT_PARTNERS': "https://api.self-marketing-platform.co.kr/api/payment/deposit", # TODO: TEST완료
-        'JAPAN_SMS': "https://api.self-marketing-platform.co.kr/api/payment/deposit",
+        'SELF_MARKETING': "https://api.self-marketing-platform.co.kr/api/payment/deposit", # TODO: TEST완료
     }
 
     @staticmethod
@@ -59,7 +59,7 @@ class APIConfig:
 # 에러 코드 상수
 class ErrorCodes:
     DUPLICATE_DEPOSIT_PARTNER = ['300706', '300711']
-    JAPAN_IGNORE_CODE = ['001006']
+    SELF_MARKETING_IGNORE_CODE = ['001006']
 
 # 채널 그룹 정의
 class ChannelGroups:
@@ -69,7 +69,7 @@ class ChannelGroups:
         _JAPAN_FOLLOWERLAB_DEPOSIT_CHANNEL_ID,
     ]
 
-    JAPAN_SMS_CHANNELS = [
+    SELF_MARKETING_CHANNELS = [
         _JAPAN_NIHON_DEPOSIT_CHANNEL_ID,
         _JAPAN_TOMO_DEPOSIT_CHANNEL_ID,
         _JAPAN_FOLLOWERLAB_DEPOSIT_CHANNEL_ID,
@@ -169,10 +169,12 @@ class DepositCheckAPI:
 
         try:
             # TODO: TEST
-            if channel_id in ChannelGroups.JAPAN_CHANNELS:
-                return self._parse_japan_message(channel_id, txt, txt_content, elements_list)
-            # elif channel_id == _SERVICE_TEAM_SMS_CHANNEL_ID:
-            #     return self._parse_sms_message(txt)
+            # if channel_id in ChannelGroups.JAPAN_CHANNELS:
+            #     return self._parse_japan_message(channel_id, txt, txt_content, elements_list)
+            # # TODO: TEST
+            # # elif channel_id == _SERVICE_TEAM_SMS_CHANNEL_ID:
+            if channel_id == _SERVICE_TEAM_SMS_CHANNEL_ID:
+                return self._parse_sms_message(txt)
             else:
                 return self._parse_standard_message(txt_content)
         except Exception as e:
@@ -283,8 +285,8 @@ class DepositCheckAPI:
         """채널별 API URL 반환"""
         if channel_id in API_URL_MAPPING:
             return API_URL_MAPPING[channel_id]
-        elif channel_id in ChannelGroups.JAPAN_SMS_CHANNELS:
-            return APIConfig.get_url('JAPAN_SMS')
+        elif channel_id in ChannelGroups.SELF_MARKETING_CHANNELS:
+            return APIConfig.get_url('SELF_MARKETING')
         else:
             raise Exception(f"Not supported channel_id. ({channel_id})")
 
@@ -357,8 +359,10 @@ class DepositCheckAPI:
                 )
 
             # 일본/SMS 무시할 에러 코드 체크
-            elif (channel_id in ChannelGroups.JAPAN_SMS_CHANNELS and
-                  str(resp_data.get('code')) in ErrorCodes.JAPAN_IGNORE_CODE):
+            elif (
+                channel_id in ChannelGroups.SELF_MARKETING_CHANNELS and
+                str(resp_data.get('code')) in ErrorCodes.SELF_MARKETING_IGNORE_CODE
+            ):
                 return ProcessingResult(emoji_name=None, message=None)
 
             # 그 외 모든 400 에러는 X 이모지
