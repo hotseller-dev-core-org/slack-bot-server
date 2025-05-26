@@ -186,26 +186,35 @@ class DepositCheckAPI:
 
     def _parse_standard_message(self, txt_content: List[str]) -> ParseResult:
         """표준 메시지 파싱"""
-        if len(txt_content) != 5:
-            _LOGGER.info(f"유효하지 않는 문자임 (5) (txt_content: {txt_content})")
+        # HOT_PARTNERS 채널의 경우 7개 요소: ['2025/05/26', '18:20', '입금', '10,000원', '백다예', '029***4650451', '기업']
+        # 기존 채널의 경우 5개 요소: ['2025/05/26', '18:20', '입금', '10,000원', '백다예']
+
+        if len(txt_content) not in [5, 7]:
+            _LOGGER.info(f"유효하지 않는 문자임 (5 또는 7개 요소 필요) (txt_content: {txt_content})")
             return ParseResult(data={}, is_valid=False)
 
         if txt_content[2] != "입금":
             _LOGGER.info(f"'입금'이 포함 안됨.(txt_content: {txt_content})")
             return ParseResult(data={}, is_valid=False)
 
+        # 날짜와 시간 조합
         order_date = f'{txt_content[0]} {txt_content[1]}'.replace('/', '-')
+
+        # 금액 처리 (쉼표와 '원' 제거)
         amount_str = txt_content[3]
-        amount = Decimal(sub(r'[^\d.]', "", amount_str))
+        amount = Decimal(sub(r'[^\d.]', "", amount_str))  # 숫자와 점만 남김
 
         if not amount:
             _LOGGER.info(f"amount가 0임 (txt_content: {txt_content})")
             return ParseResult(data={}, is_valid=False)
 
+        # 예금주명 처리 (띄어쓰기 포함하여 하나의 이름으로)
+        deposit_acct_holder = txt_content[4]
+
         return ParseResult(data={
             'order_date': order_date,
             'amount': int(amount),
-            'deposit_acct_holder': txt_content[4],
+            'deposit_acct_holder': deposit_acct_holder,
         })
 
     def _process_emoji_elements(self, txt: str, elements_list: List[Dict[str, Any]]) -> str:
