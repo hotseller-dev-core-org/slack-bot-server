@@ -50,6 +50,11 @@ async def handle_event(
     if event.get("subtype") in ["bot_message", "message_changed"]:
         return Response(status_code=204)
 
+    # 봇이 보낸 메시지 필터링 (bot_id가 있는 경우)
+    if event.get("bot_id"):
+        LOGGER.info("봇 메시지이므로 처리하지 않음")
+        return Response(status_code=204)
+
     channel_id = event.get("channel", "")
     thread_ts = event.get("ts", "")
     text = event.get("text", "")

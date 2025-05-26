@@ -38,15 +38,23 @@ def set_logger(pkg=None, log_dir=None, level=None, stream_only=False, json_forma
         pkg_name = pkg or ROOT_PKG
         log_dir_path = log_dir or DEFAULT_LOGGING_PATH
 
-    return _set_logger(
+    # traceloggerx 로거 생성
+    logger = _set_logger(
         pkg=pkg_name,
         log_dir=log_dir_path,
         level=resolve_log_level(level),
-        # stream_only=stream_only,
-        stream_only=True, # 콘솔 중복 출력 방지
+        stream_only=True,  # 파일만 사용
         json_format=json_format,
         extra=extra
     )
+
+    # traceloggerx의 스트림 핸들러 제거하여 중복 출력 방지
+    underlying_logger = logging.getLogger(pkg_name)
+    for handler in underlying_logger.handlers[:]:
+        if isinstance(handler, logging.StreamHandler) and not isinstance(handler, logging.FileHandler):
+            underlying_logger.removeHandler(handler)
+
+    return logger
 
 def handle_exception(exc_type, exc_value, exc_traceback):
     """예외 발생 시 에러 로거를 통해 기록"""
@@ -56,6 +64,15 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 def init_logger():
     """전역 예외 핸들러 설정 및 기본 로거 등록"""
     sys.excepthook = handle_exception
+
+    # Python 기본 logging의 루트 로거 설정 조정
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.WARNING)  # 기본 로거는 WARNING 이상만 출력
+
+    # 기본 핸들러들 제거
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+
     _set_logger(ROOT_PKG, log_dir=DEFAULT_LOGGING_PATH)
     _set_logger(f"{ROOT_PKG}.error", log_dir=DEFAULT_LOGGING_PATH)
 
