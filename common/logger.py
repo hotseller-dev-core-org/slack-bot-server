@@ -8,7 +8,7 @@ from traceloggerx.logutils.logger import set_logger as _set_logger
 
 from common.config import config
 
-ROOT_PKG = "slack_deposit_server"
+ROOT_PKG = "slack_bot_server"
 DEFAULT_LOGGING_PATH = config.DEFAULT_LOGGING_PATH
 
 def resolve_log_level(level=None):
@@ -42,7 +42,8 @@ def set_logger(pkg=None, log_dir=None, level=None, stream_only=False, json_forma
         pkg=pkg_name,
         log_dir=log_dir_path,
         level=resolve_log_level(level),
-        stream_only=stream_only,
+        # stream_only=stream_only,
+        stream_only=True, # 콘솔 중복 출력 방지
         json_format=json_format,
         extra=extra
     )

@@ -32,6 +32,7 @@ class DepositCheckAPI:
         redis_key = f"slack_event:{event_id}"
         if redis_client.get(redis_key):
             # 중복이면 조용히 return (로깅 포함 전부 생략)
+            self.logger.info(f"중복 이벤트 발생 (event_id: {event_id})")
             return
 
         redis_client.setex(redis_key, 600, "1")

@@ -1,5 +1,6 @@
 from typing import List
 
+
 def parse_txt_from_blocks(block: dict) -> List[str]:
     """
     Slack 메시지 블록에서 텍스트를 추출하는 함수

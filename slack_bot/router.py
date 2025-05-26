@@ -2,6 +2,7 @@ import json
 
 from fastapi import APIRouter, Request, Response, status
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 from common.logger import set_logger
 from slack_bot.api.deposit_check import DepositCheckAPI
@@ -15,38 +16,44 @@ LOGGER = set_logger("api")
 router = APIRouter(prefix="/v1/slack", tags=["Slack"])
 deposit_api = DepositCheckAPI()
 
+# Swagger 테스트용 모델 (Slack 이벤트 포맷에 맞춤)
+class SlackEventModel(BaseModel):
+    token: str
+    team_id: str
+    api_app_id: str
+    event: dict
+    type: str
+    event_id: str | None = None
+    challenge: str | None = None
 
-@router.post("/event")
-async def handle_event(request: Request) -> Response:
+@router.post("/event", response_model=dict)
+async def handle_event(
+    payload: SlackEventModel, request: Request
+) -> Response:
     content_type = request.headers.get("content-type", "")
     if not content_type.startswith("application/json"):
         LOGGER.warning(f"Unsupported Content-Type: {content_type}")
         return JSONResponse(status_code=400, content={"error": "Only application/json is allowed"})
 
-    try:
-        body = await request.json()
-    except Exception as e:
-        LOGGER.error(f"JSON decode error: {e}")
-        return JSONResponse(status_code=400, content={"error": "Invalid JSON"})
-
+    body = payload.dict()
     LOGGER.info(f"Slack Event Body: {body}")
 
     # Slack challenge 응답
-    if "challenge" in body:
-        return JSONResponse(content={"challenge": body["challenge"]})
+    if payload.challenge:
+        return JSONResponse(content={"challenge": payload.challenge})
 
     # 이벤트 처리
-    event = body.get("event", {})
+    event = payload.event
     if not event:
         return Response(status_code=204)
 
     if event.get("subtype") in ["bot_message", "message_changed"]:
         return Response(status_code=204)
 
-    channel_id = event.get("channel")
-    thread_ts = event.get("ts")
+    channel_id = event.get("channel", "")
+    thread_ts = event.get("ts", "")
     text = event.get("text", "")
-    event_id = body.get("event_id", thread_ts)
+    event_id = payload.event_id or thread_ts
 
     if "입금" not in text:
         LOGGER.info("입금 관련 메세지가 아님")
