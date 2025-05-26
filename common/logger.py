@@ -27,7 +27,7 @@ def resolve_log_level(level=None):
 def set_logger(pkg=None, log_dir=None, level=None, stream_only=False, json_format=False, extra=None):
     # pkg에서 점을 슬래시로 변경하여 디렉토리 구조 생성
     if pkg and '.' in pkg:
-        # slack_deposit_server.api -> slack_deposit_server/api
+        # slack_bot_server.api -> slack_bot_server/api
         pkg_path = pkg.replace('.', '/')
         # 로그 디렉토리 경로 생성
         log_dir_path = os.path.join(log_dir or DEFAULT_LOGGING_PATH, os.path.dirname(pkg_path))

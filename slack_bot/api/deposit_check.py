@@ -16,7 +16,7 @@ class DepositCheckAPI:
         self.logger = set_logger("api")
         self.slack_api = SlackAPI(config.SLACK_APP_TOKEN)
 
-    # @aio_log_method_call("slack_deposit_server.api")
+    # @aio_log_method_call("slack_bot_server.api")
     async def processing(
         self,
         channel_id: str,

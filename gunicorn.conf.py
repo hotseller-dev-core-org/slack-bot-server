@@ -339,7 +339,7 @@ errorlog = '/var/log/slack-bot-server/gunicorn_error.log'
 #
 
 # proc_name = None
-proc_name = "slack_deposit_server"
+proc_name = "slack_bot_server"
 
 #
 # Server hooks
