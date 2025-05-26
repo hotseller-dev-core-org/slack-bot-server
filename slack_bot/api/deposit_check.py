@@ -52,8 +52,8 @@ class ChannelGroups:
 API_URL_MAPPING = {
     _HOT_AUTO_DEPOSIT_CHANNEL_ID: "http://10.0.23.222/api/point",
     _SNS_TOOL_DEPOSIT_CHANNEL_ID: "https://api.snstool.co.kr/api/point",
-    # TODO: TEST
-    _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: "http://api.hotpartners.co.kr/partner/point/auto-charge",
+    # TODO: TEST - HTTPS로 변경
+    _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: "https://api.hotpartners.co.kr/partner/point/auto-charge",
     # _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: "http://10.0.2.216/partner/point/auto-charge",
 }
 
@@ -267,7 +267,15 @@ class DepositCheckAPI:
                 _LOGGER.info(f"[그코용] parse_res: {parse_res}")
 
             _LOGGER.info(f"api_url: {api_url}")
-            resp = requests.post(api_url, json=parse_res, verify=False)
+
+            # API 호출 시 헤더 설정
+            headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+
+            _LOGGER.info(f"API 호출 - URL: {api_url}, Headers: {headers}, Data: {parse_res}")
+            resp = requests.post(api_url, json=parse_res, headers=headers, verify=True)
             _LOGGER.info(f"resp: {resp} / resp.text: {resp.text}")
 
             result = self._handle_api_response(channel_id, resp)
