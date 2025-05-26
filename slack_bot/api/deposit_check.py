@@ -171,12 +171,12 @@ class DepositCheckAPI:
             # TODO: TEST
             # if channel_id in ChannelGroups.JAPAN_CHANNELS:
             #     return self._parse_japan_message(channel_id, txt, txt_content, elements_list)
+            # elif channel_id == _SERVICE_TEAM_SMS_CHANNEL_ID:
+            #     return self._parse_sms_message(txt)
+            # else:
             # # TODO: TEST
-            # # elif channel_id == _SERVICE_TEAM_SMS_CHANNEL_ID:
-            if channel_id == _SERVICE_TEAM_SMS_CHANNEL_ID:
-                return self._parse_sms_message(txt)
-            else:
-                return self._parse_standard_message(txt_content)
+                # return self._parse_standard_message(txt_content)
+            return self._parse_standard_message(txt_content)
         except Exception as e:
             _LOGGER.exception(e)
             return ParseResult(data={}, is_valid=False)
@@ -234,7 +234,8 @@ class DepositCheckAPI:
         #     _LOGGER.info(f"유효하지 않는 문자임 (5 또는 7개 요소 필요) (txt_content: {txt_content})")
         #     return ParseResult(data={}, is_valid=False)
 
-        if txt_content[2] != "입금":
+        # NOTE: 출금 메세지를 avoid 하기 위함
+        if "입금" not in txt_content:
             _LOGGER.info(f"'입금'이 포함 안됨.(txt_content: {txt_content})")
             return ParseResult(data={}, is_valid=False)
 
