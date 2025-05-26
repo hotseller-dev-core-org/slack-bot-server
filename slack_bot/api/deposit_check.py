@@ -127,7 +127,13 @@ class DepositCheckAPI:
         emoji_name, resp_msg = "white_check_mark", None
         try:
             self.logger.info(f"api_url: {api_url}")
-            resp = requests.post(api_url, json=payload, verify=False)
+
+            # TODO:
+            # resp = requests.post(api_url, json=payload, verify=False)
+            resp = requests.Response()
+            resp.status_code = HTTPStatus.OK
+            resp.json = lambda: {"status": "success"}
+
             self.logger.info(f"resp: {resp} / {resp.text}")
 
             if resp.status_code == HTTPStatus.OK:
