@@ -41,6 +41,8 @@ class DepositCheckAPI:
 
         try:
             parse_res = self._parse_message(channel_id, txt_content, elements_list)
+            self.logger.info(f"txt_content: {txt_content}")
+            self.logger.info(f"parse_res: {parse_res}")
         except Exception as e:
             self.logger.exception(e)
             await self.send_result(channel_id, thread_ts, str(e))
@@ -128,6 +130,7 @@ class DepositCheckAPI:
         emoji_name, resp_msg = "white_check_mark", None
         try:
             self.logger.info(f"api_url: {api_url}")
+            # self.logger.info(f"payload: {payload}")
 
             # TODO:
             resp = requests.post(api_url, json=payload, verify=False)
@@ -136,7 +139,7 @@ class DepositCheckAPI:
             # resp.status_code = HTTPStatus.OK
             # resp.json = lambda: {"status": "success"}
 
-            self.logger.info(f"\n_handle_api_response() resp: {resp}\n{resp.text}\n{resp.status_code}")
+            self.logger.info(f"\n_handle_api_response() resp: {resp}\n{resp.text}\n{resp.status_code}\npayload: {payload}")
 
             if resp.status_code == HTTPStatus.OK:
                 data = resp.json()
