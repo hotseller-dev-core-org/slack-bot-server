@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
@@ -10,23 +11,52 @@ import requests
 from advertools import emoji
 
 from common import aio_log_method_call, config, set_logger
+from common.config import Config
 from common.redis import redis_client
 from slack_bot.slack import SlackAPI
 
+# 환경 설정 (환경변수로 제어 가능)
+IS_TEST_MODE = Config.SLACK_BOT_TEST_MODE
+TEST_CHANNEL_ID = "C06MFPLN81W"  # 테스트용 통합 채널
+
+# 채널 ID 설정
+class ChannelConfig:
+    @staticmethod
+    def get_channel_id(prod_channel: str, test_channel: str = TEST_CHANNEL_ID) -> str:
+        return test_channel if IS_TEST_MODE else prod_channel
+
 # 채널 ID 상수
-_HOT_AUTO_DEPOSIT_CHANNEL_ID: Final[str] = "C025V0PJZ1P"
-_SNS_TOOL_DEPOSIT_CHANNEL_ID: Final[str] = "C08CHA1TZQW"
-_MONEYCOON_DEPOSIT_CHANNEL_ID: Final[str] = "C0376RS8KLZ"
-_JAPAN_NIHON_DEPOSIT_CHANNEL_ID: Final[str] = "C05LS9VF5DY"
-_JAPAN_TOMO_DEPOSIT_CHANNEL_ID: Final[str] = "C06C3HG1Q0K"
-_JAPAN_FOLLOWERLAB_DEPOSIT_CHANNEL_ID: Final[str] = "C08F10YTBKK"
+_HOT_AUTO_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C025V0PJZ1P")
+_SNS_TOOL_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C08CHA1TZQW")
+_MONEYCOON_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C0376RS8KLZ")
+_JAPAN_NIHON_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C05LS9VF5DY")
+_JAPAN_TOMO_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C06C3HG1Q0K")
+_JAPAN_FOLLOWERLAB_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C08F10YTBKK")
+_SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C08BR1P920H")
+_SERVICE_TEAM_SMS_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C05NYEWHK1S")
 
-# TODO: TEST
-# _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: Final[str] = "C08BR1P920H"
-_SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: Final[str] = "C06MFPLN81W"
+# API URL 설정
+class APIConfig:
+    # 운영 환경 URL
+    PROD_URLS = {
+        'HOT_AUTO': "http://10.0.23.222/api/point",
+        'SNS_TOOL': "https://api.snstool.co.kr/api/point",
+        'HOT_PARTNERS': "http://10.0.2.216/partner/point/auto-charge",
+        'JAPAN_SMS': "http://10.0.2.21/api/payment/deposit",
+    }
 
-_SERVICE_TEAM_SMS_CHANNEL_ID: Final[str] = "C05NYEWHK1S"
+    # 테스트 환경 URL
+    TEST_URLS = {
+        'HOT_AUTO': "https://api.growthcore.co.kr/api/point", # TODO: TEST완료
+        'SNS_TOOL': "https://api.snstool.co.kr/api/point",
+        'HOT_PARTNERS': "https://api.self-marketing-platform.co.kr/api/payment/deposit", # TODO: TEST완료
+        'JAPAN_SMS': "https://api.self-marketing-platform.co.kr/api/payment/deposit",
+    }
 
+    @staticmethod
+    def get_url(service_name: str) -> str:
+        urls = APIConfig.TEST_URLS if IS_TEST_MODE else APIConfig.PROD_URLS
+        return urls.get(service_name, "")
 
 # 에러 코드 상수
 class ErrorCodes:
@@ -50,11 +80,9 @@ class ChannelGroups:
 
 # API URL 매핑
 API_URL_MAPPING = {
-    _HOT_AUTO_DEPOSIT_CHANNEL_ID: "http://10.0.23.222/api/point",
-    _SNS_TOOL_DEPOSIT_CHANNEL_ID: "https://api.snstool.co.kr/api/point",
-    # TODO: TEST - HTTPS로 변경
-    _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: "https://api.hotpartners.co.kr/partner/point/auto-charge",
-    # _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: "http://10.0.2.216/partner/point/auto-charge",
+    _HOT_AUTO_DEPOSIT_CHANNEL_ID: APIConfig.get_url('HOT_AUTO'),
+    _SNS_TOOL_DEPOSIT_CHANNEL_ID: APIConfig.get_url('SNS_TOOL'),
+    _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: APIConfig.get_url('HOT_PARTNERS'),
 }
 
 JAPAN_MAPPING_INFO: Dict[str, str] = {
@@ -96,6 +124,12 @@ class DepositCheckAPI:
         self.logger = set_logger("api")
         self.slack_api = SlackAPI(config.SLACK_APP_TOKEN)
 
+        # 시작 시 현재 설정 로깅
+        mode = "테스트" if IS_TEST_MODE else "운영"
+        _LOGGER.info(f"DepositCheckAPI 초기화 - 모드: {mode}")
+        if IS_TEST_MODE:
+            _LOGGER.info(f"테스트 채널: {TEST_CHANNEL_ID}")
+
     async def processing(
         self,
         channel_id: str,
@@ -136,10 +170,11 @@ class DepositCheckAPI:
         txt_content = txt.split()
 
         try:
+            # TODO: TEST
             if channel_id in ChannelGroups.JAPAN_CHANNELS:
                 return self._parse_japan_message(channel_id, txt, txt_content, elements_list)
-            elif channel_id == _SERVICE_TEAM_SMS_CHANNEL_ID:
-                return self._parse_sms_message(txt)
+            # elif channel_id == _SERVICE_TEAM_SMS_CHANNEL_ID:
+            #     return self._parse_sms_message(txt)
             else:
                 return self._parse_standard_message(txt_content)
         except Exception as e:
@@ -180,7 +215,7 @@ class DepositCheckAPI:
     def _parse_sms_message(self, txt: str) -> ParseResult:
         """SMS 채널 메시지 파싱"""
         if "입금" not in txt:
-            _LOGGER.info(f"'입금'이 포함 안됨.")
+            _LOGGER.info("'입금'이 포함 안됨.")
             return ParseResult(data={}, is_valid=False)
 
         return ParseResult(data={
@@ -194,9 +229,10 @@ class DepositCheckAPI:
         # HOT_PARTNERS 채널의 경우 7개 요소: ['2025/05/26', '18:20', '입금', '10,000원', '백다예', '029***4650451', '기업']
         # 기존 채널의 경우 5개 요소: ['2025/05/26', '18:20', '입금', '10,000원', '백다예']
 
-        if len(txt_content) not in [5, 7]:
-            _LOGGER.info(f"유효하지 않는 문자임 (5 또는 7개 요소 필요) (txt_content: {txt_content})")
-            return ParseResult(data={}, is_valid=False)
+        # TODO: 확인 필요
+        # if len(txt_content) not in [5, 7]:
+        #     _LOGGER.info(f"유효하지 않는 문자임 (5 또는 7개 요소 필요) (txt_content: {txt_content})")
+        #     return ParseResult(data={}, is_valid=False)
 
         if txt_content[2] != "입금":
             _LOGGER.info(f"'입금'이 포함 안됨.(txt_content: {txt_content})")
@@ -213,7 +249,8 @@ class DepositCheckAPI:
             _LOGGER.info(f"amount가 0임 (txt_content: {txt_content})")
             return ParseResult(data={}, is_valid=False)
 
-        # 예금주명 처리 (띄어쓰기 포함하여 하나의 이름으로)
+        # TODO: 확인 필요
+        # 예금주명 처리 (띄어쓰기 포함하여 하나의 이름으로 처리할 필요 있음)
         deposit_acct_holder = txt_content[4]
 
         return ParseResult(data={
@@ -249,24 +286,20 @@ class DepositCheckAPI:
         if channel_id in API_URL_MAPPING:
             return API_URL_MAPPING[channel_id]
         elif channel_id in ChannelGroups.JAPAN_SMS_CHANNELS:
-            return "http://10.0.2.21/api/payment/deposit"
+            return APIConfig.get_url('JAPAN_SMS')
         else:
             raise Exception(f"Not supported channel_id. ({channel_id})")
 
     async def _process_api_call(self, channel_id: str, thread_ts: str, parse_res: Dict[str, Any]) -> None:
         """API 호출 및 응답 처리"""
-        _LOGGER.info(f"parse_res: {parse_res}")
-
         api_url = ""
         try:
             api_url = self._get_api_url(channel_id)
+            _LOGGER.info(f"호출 API URL: {api_url}")
 
             # HOT_AUTO 채널의 경우 thread_ts 추가
             if channel_id == _HOT_AUTO_DEPOSIT_CHANNEL_ID:
                 parse_res['thread_ts'] = thread_ts
-                _LOGGER.info(f"[그코용] parse_res: {parse_res}")
-
-            _LOGGER.info(f"api_url: {api_url}")
 
             # API 호출 시 헤더 설정
             headers = {
@@ -274,9 +307,9 @@ class DepositCheckAPI:
                 'Accept': 'application/json'
             }
 
-            _LOGGER.info(f"API 호출 - URL: {api_url}, Headers: {headers}, Data: {parse_res}")
+            _LOGGER.info(f"[API 호출 정보]\nURL: {api_url}\nHeaders: {headers}\nData: {parse_res}")
             resp = requests.post(api_url, json=parse_res, headers=headers, verify=True)
-            _LOGGER.info(f"resp: {resp} / resp.text: {resp.text}")
+            _LOGGER.info(f"[API 호출 결과]\nresp: {resp}\nresp.text: {resp.text}")
 
             result = self._handle_api_response(channel_id, resp)
 
@@ -287,7 +320,7 @@ class DepositCheckAPI:
             )
 
         # 결과 전송
-        _LOGGER.info(f"외부 API({api_url}) 호출 결과: {result}")
+        _LOGGER.info(f"[외부 API 호출 결과 처리 후]\nresult: {result}")
         await self._send_processing_result(channel_id, thread_ts, result)
 
     def _handle_api_response(self, channel_id: str, resp: requests.Response) -> ProcessingResult:

@@ -21,6 +21,7 @@ class Config(BaseModel):
 
     # Slack App Token
     SLACK_APP_TOKEN: Final[str] = os.getenv('SLACK_APP_TOKEN', "")
+    SLACK_BOT_TEST_MODE: Final[bool] = bool(os.getenv('SLACK_BOT_TEST_MODE', "False"))
 
     # 채널 ID
     HOT_AUTO_DEPOSIT_CHANNEL_ID: Final[str] = os.getenv('HOT_AUTO_DEPOSIT_CHANNEL_ID', "C025V0PJZ1P")
@@ -74,6 +75,9 @@ class Config(BaseModel):
         SERVICE_TEAM_SMS_CHANNEL_ID: SELF_MARKETING_PLATFORM_API_URL,
         SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: HOT_PARTNERS_API_URL,
     }
+
+    # API 인증 키들
+    # SNSTOOL_API_KEY = os.getenv('SNSTOOL_API_KEY', '')
 
 config = Config()
 

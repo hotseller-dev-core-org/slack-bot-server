@@ -115,3 +115,94 @@ slack_event:Ev08U1XXXXXX
 - `aio_log_method_call` 데코레이터로 비동기 함수 호출 시 로그 자동 기록됩니다.
 - 슬랙 메시지 전송, 반응 처리 등은 `slack_bot/slack.py` 내부 `SlackAPI` 클래스를 사용합니다.
 
+## 환경 설정
+
+### 테스트/운영 모드 전환
+
+환경변수 `SLACK_BOT_TEST_MODE`를 통해 테스트/운영 모드를 전환할 수 있습니다.
+
+#### 테스트 모드 활성화
+```bash
+export SLACK_BOT_TEST_MODE=true
+```
+
+#### 운영 모드 (기본값)
+```bash
+export SLACK_BOT_TEST_MODE=false
+# 또는 환경변수 설정하지 않음
+```
+
+### 채널 및 API 설정
+
+#### 테스트 모드
+- **모든 채널**: `C06MFPLN81W` (통합 테스트 채널)
+- **API URLs**:
+  - HOT_AUTO: `http://10.0.23.222/api/point`
+  - SNS_TOOL: `https://api.snstool.co.kr/api/point`
+  - HOT_PARTNERS: `https://api.self-marketing-platform.co.kr/api/payment/deposit`
+  - JAPAN_SMS: `https://api.self-marketing-platform.co.kr/api/payment/deposit`
+
+#### 운영 모드
+- **채널별 설정**:
+  - HOT_AUTO: `C025V0PJZ1P`
+  - SNS_TOOL: `C08CHA1TZQW`
+  - MONEYCOON: `C0376RS8KLZ`
+  - JAPAN_NIHON: `C05LS9VF5DY`
+  - JAPAN_TOMO: `C06C3HG1Q0K`
+  - JAPAN_FOLLOWERLAB: `C08F10YTBKK`
+  - HOT_PARTNERS: `C08BR1P920H`
+  - SMS: `C05NYEWHK1S`
+
+- **API URLs**:
+  - HOT_AUTO: `http://10.0.23.222/api/point`
+  - SNS_TOOL: `https://api.snstool.co.kr/api/point`
+  - HOT_PARTNERS: `https://api.hotpartners.co.kr/partner/point/auto-charge`
+  - JAPAN_SMS: `http://10.0.2.21/api/payment/deposit`
+
+## 테스트 방법
+
+### 1. 테스트 모드에서 모든 서비스 테스트
+```bash
+# 테스트 모드 활성화
+export SLACK_BOT_TEST_MODE=true
+
+# 서버 재시작
+python main.py
+```
+
+### 2. 테스트 채널에서 다양한 메시지 형식 테스트
+
+#### 표준 메시지 (HOT_AUTO, SNS_TOOL, HOT_PARTNERS)
+```
+2025/05/26 19:00 입금 50,000원 테스트유저
+```
+
+#### 일본 채널 메시지
+```
+니혼 입금 2025/05/26 19:00 테스트 메시지
+토모 입금 2025/05/26 19:00 테스트 메시지
+팔로워랩 입금 2025/05/26 19:00 테스트 메시지
+```
+
+#### SMS 메시지
+```
+입금 관련 테스트 메시지
+```
+
+### 3. 로그 확인
+- 시작 시 현재 모드 확인: `DepositCheckAPI 초기화 - 모드: 테스트/운영`
+- API 호출 URL 확인: `API 호출 - URL: ...`
+
+## 운영 배포
+
+운영 환경 배포 시:
+```bash
+# 환경변수 제거 또는 false 설정
+unset SLACK_BOT_TEST_MODE
+# 또는
+export SLACK_BOT_TEST_MODE=false
+
+# 서버 재시작
+python main.py
+```
+
