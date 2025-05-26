@@ -50,6 +50,8 @@ API_URL_MAPPING = {
     # TODO: TEST
     _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: "http://api.hotpartners.co.kr/partner/point/auto-charge",
     # _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: "http://10.0.2.216/partner/point/auto-charge",
+    # TODO: TEST
+    _SERVICE_TEAM_SMS_CHANNEL_ID: "http://api.hotpartners.co.kr/partner/point/auto-charge",
 }
 
 JAPAN_MAPPING_INFO: Dict[str, str] = {
