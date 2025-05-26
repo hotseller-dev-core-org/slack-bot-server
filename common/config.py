@@ -1,12 +1,14 @@
-import os
 import json
-from pydantic import BaseModel
-from typing import Final, ClassVar
+import os
+from typing import ClassVar, Final
+
 from dotenv import load_dotenv
+from pydantic import BaseModel
+
 load_dotenv()
 
 class Config(BaseModel):
-    DEFAULT_LOGGING_PATH: Final[str] = os.getenv('DEFAULT_LOGGING_PATH', "/var/log/slack-deposit-server")
+    DEFAULT_LOGGING_PATH: Final[str] = os.getenv('DEFAULT_LOGGING_PATH', "/var/log/slack-bot-server")
     TEMP_FILE_PATH: Final[str] = os.getenv('TMP_FILE_PATH', "")  # 임시 파일 저장 경로
     DEFAULT_LOGGING_LEVEL: Final[str] = os.getenv('DEFAULT_LOGGING_LEVEL', "DEBUG")
 

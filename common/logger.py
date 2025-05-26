@@ -1,9 +1,12 @@
+import logging
+import os
 import sys
 import time
 from functools import wraps
+
 from traceloggerx.logutils.logger import set_logger as _set_logger
+
 from common.config import config
-import logging
 
 ROOT_PKG = "slack_deposit_server"
 DEFAULT_LOGGING_PATH = config.DEFAULT_LOGGING_PATH
@@ -22,9 +25,22 @@ def resolve_log_level(level=None):
 # 필요시 인자 추가 가능
 
 def set_logger(pkg=None, log_dir=None, level=None, stream_only=False, json_format=False, extra=None):
+    # pkg에서 점을 슬래시로 변경하여 디렉토리 구조 생성
+    if pkg and '.' in pkg:
+        # slack_deposit_server.api -> slack_deposit_server/api
+        pkg_path = pkg.replace('.', '/')
+        # 로그 디렉토리 경로 생성
+        log_dir_path = os.path.join(log_dir or DEFAULT_LOGGING_PATH, os.path.dirname(pkg_path))
+        os.makedirs(log_dir_path, exist_ok=True)
+        # 파일명은 마지막 부분만 사용
+        pkg_name = os.path.basename(pkg_path)
+    else:
+        pkg_name = pkg or ROOT_PKG
+        log_dir_path = log_dir or DEFAULT_LOGGING_PATH
+
     return _set_logger(
-        pkg=pkg or ROOT_PKG,
-        log_dir=log_dir or DEFAULT_LOGGING_PATH,
+        pkg=pkg_name,
+        log_dir=log_dir_path,
         level=resolve_log_level(level),
         stream_only=stream_only,
         json_format=json_format,

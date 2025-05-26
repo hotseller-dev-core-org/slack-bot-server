@@ -306,8 +306,8 @@ tmp_upload_dir = None
 logfile = '-'
 loglevel = 'info'
 access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'
-accesslog = '/var/log/slack-deposit-server/gunicorn_access.log'
-errorlog = '/var/log/slack-deposit-server/gunicorn_error.log'
+accesslog = '/var/log/slack-bot-server/gunicorn_access.log'
+errorlog = '/var/log/slack-bot-server/gunicorn_error.log'
 
 #
 # Security
@@ -375,7 +375,9 @@ def worker_int(worker):
     worker.log.info("worker received INT or QUIT signal")
 
     ## get traceback info
-    import threading, sys, traceback
+    import sys
+    import threading
+    import traceback
     id2name = {th.ident: th.name for th in threading.enumerate()}
     code = []
     for threadId, stack in sys._current_frames().items():

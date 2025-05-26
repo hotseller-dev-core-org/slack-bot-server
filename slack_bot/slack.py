@@ -1,12 +1,13 @@
 import json
 from datetime import datetime
 from typing import List
-from common import config
 
 import requests
+
+from common import config
 from common.logger import set_logger
 
-LOGGER = set_logger("slack_deposit_server.slack")
+LOGGER = set_logger("slack")
 
 
 class SlackAPI(object):
@@ -16,7 +17,7 @@ class SlackAPI(object):
 
     """
     def __init__(self, token: str) -> None:
-        self._logger = set_logger("slack_deposit_server.slack")
+        self._logger = set_logger("slack")
         self.__token = token
         self._post_message_endpoint = "https://slack.com/api/chat.postMessage"
         self._add_reaction_endpoint = "https://slack.com/api/reactions.add"

@@ -1,10 +1,10 @@
 from app import create_app
-from slack_bot.router import router as slack_router
 from common.logger import set_logger
+from slack_bot.router import router as slack_router
 
 app = create_app()
-# LOGGER = set_logger("slack_deposit_server.api")
-LOGGER = set_logger("slack_deposit_server.api", json_format=True)
+# LOGGER = set_logger("api")
+LOGGER = set_logger("api", json_format=True)
 
 app.include_router(slack_router)
 

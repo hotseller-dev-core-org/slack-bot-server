@@ -9,7 +9,7 @@ from slack_bot.api.deposit_check import DepositCheckAPI
 # from slack_bot.manager import ACTION_MANAGER, MENTION_EVENT_MANAGER, MSG_EVENT_MANAGER
 from slack_bot.manager import ACTION_MANAGER
 
-LOGGER = set_logger("slack_deposit_server.api")
+LOGGER = set_logger("api")
 
 
 router = APIRouter(prefix="/v1/slack", tags=["Slack"])

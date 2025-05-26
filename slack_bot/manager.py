@@ -1,15 +1,17 @@
 from copy import deepcopy
+from typing import Any, Dict
+
 from common.config import config
-from typing import Dict, Any
 from common.logger import set_logger
 from common.module import Singleton
 from slack_bot.api import deposit_check
 from slack_bot.slack import SlackAPI
 from slack_bot.utils import parse_txt_from_blocks
 
+
 class manager(metaclass=Singleton):
     def __init__(self):
-        self._logger = set_logger("slack_deposit_server.api")
+        self._logger = set_logger("api")
         self._load_api_instance()
 
     def _load_api_instance(self):

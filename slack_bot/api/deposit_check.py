@@ -13,7 +13,7 @@ from slack_bot.slack import SlackAPI
 
 class DepositCheckAPI:
     def __init__(self):
-        self.logger = set_logger("slack_deposit_server.api")
+        self.logger = set_logger("api")
         self.slack_api = SlackAPI(config.SLACK_APP_TOKEN)
 
     # @aio_log_method_call("slack_deposit_server.api")
