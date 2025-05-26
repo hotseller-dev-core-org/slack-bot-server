@@ -31,11 +31,11 @@ async def handle_event(request: Request) -> Response:
 
     LOGGER.info(f"Slack Event Body: {body}")
 
-    # ✅ Slack challenge 응답
+    # Slack challenge 응답
     if "challenge" in body:
         return JSONResponse(content={"challenge": body["challenge"]})
 
-    # ✅ 이벤트 처리
+    # 이벤트 처리
     event = body.get("event", {})
     if not event:
         return Response(status_code=204)
