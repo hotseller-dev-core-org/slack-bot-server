@@ -25,7 +25,9 @@ class ChannelConfig:
 
 # 채널 ID 상수
 _HOT_AUTO_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C025V0PJZ1P")
-_SNS_TOOL_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C08CHA1TZQW")
+# TODO: TEST
+# _SNS_TOOL_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C08CHA1TZQW")
+_SNS_TOOL_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C06MFPLN81W")
 _MONEYCOON_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C0376RS8KLZ")
 _JAPAN_NIHON_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C05LS9VF5DY")
 _JAPAN_TOMO_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C06C3HG1Q0K")
