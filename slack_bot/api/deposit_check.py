@@ -280,6 +280,10 @@ class DepositCheckAPI:
 
     def _get_api_url(self, channel_id: str) -> str:
         """채널별 API URL 반환"""
+        _LOGGER.info(f"[DEBUG] _get_api_url 호출 - channel_id: {channel_id}, IS_TEST_MODE: {IS_TEST_MODE}")
+        _LOGGER.info(f"[DEBUG] _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: {_SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID}")
+        _LOGGER.info(f"[DEBUG] API_URL_MAPPING keys: {list(API_URL_MAPPING.keys())}")
+
         # 테스트 모드에서는 실제 채널 ID가 들어올 수 있으므로 매핑 처리
         if IS_TEST_MODE:
             # 실제 채널 ID를 서비스별로 매핑
@@ -296,10 +300,15 @@ class DepositCheckAPI:
 
         # 운영 모드에서는 기존 로직 사용
         if channel_id in API_URL_MAPPING:
-            return API_URL_MAPPING[channel_id]
+            url = API_URL_MAPPING[channel_id]
+            _LOGGER.info(f"[DEBUG] API_URL_MAPPING에서 찾음 - URL: {url}")
+            return url
         elif channel_id in ChannelGroups.SELF_MARKETING_CHANNELS:
-            return APIConfig.get_url('SELF_MARKETING')
+            url = APIConfig.get_url('SELF_MARKETING')
+            _LOGGER.info(f"[DEBUG] SELF_MARKETING_CHANNELS에서 찾음 - URL: {url}")
+            return url
         else:
+            _LOGGER.error(f"[DEBUG] 매핑에서 찾지 못함 - channel_id: {channel_id}")
             raise Exception(f"Not supported channel_id. ({channel_id})")
 
     async def _process_api_call(self, channel_id: str, thread_ts: str, parse_res: Dict[str, Any]) -> None:
