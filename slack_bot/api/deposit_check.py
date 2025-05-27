@@ -280,6 +280,21 @@ class DepositCheckAPI:
 
     def _get_api_url(self, channel_id: str) -> str:
         """채널별 API URL 반환"""
+        # 테스트 모드에서는 실제 채널 ID가 들어올 수 있으므로 매핑 처리
+        if IS_TEST_MODE:
+            # 실제 채널 ID를 서비스별로 매핑
+            if channel_id in ["C025V0PJZ1P"]:  # HOT_AUTO
+                return APIConfig.get_url('HOT_AUTO')
+            elif channel_id in ["C08CHA1TZQW"]:  # SNS_TOOL
+                return APIConfig.get_url('SNS_TOOL')
+            elif channel_id in ["C08BR1P920H"]:  # HOT_PARTNERS
+                return APIConfig.get_url('HOT_PARTNERS')
+            elif channel_id in ["C05LS9VF5DY", "C06C3HG1Q0K", "C08F10YTBKK", "C05NYEWHK1S"]:  # SELF_MARKETING
+                return APIConfig.get_url('SELF_MARKETING')
+            elif channel_id == TEST_CHANNEL_ID:  # 테스트 채널에서 온 경우 기본값
+                return APIConfig.get_url('HOT_AUTO')  # 기본값으로 HOT_AUTO 사용
+
+        # 운영 모드에서는 기존 로직 사용
         if channel_id in API_URL_MAPPING:
             return API_URL_MAPPING[channel_id]
         elif channel_id in ChannelGroups.SELF_MARKETING_CHANNELS:
