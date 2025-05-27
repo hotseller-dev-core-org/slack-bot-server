@@ -247,12 +247,32 @@ class DepositCheckAPI:
             _LOGGER.info(f"'입금'이 포함 안됨.(txt_content: {txt_content})")
             return ParseResult(data={}, is_valid=False)
 
+        # 최소 5개 요소 체크 (안전성을 위해, 기존 로직은 != 5 였음)
+        if len(txt_content) < 5:
+            _LOGGER.info(f"요소가 부족함 (최소 5개 필요) (txt_content: {txt_content})")
+            return ParseResult(data={}, is_valid=False)
+
         # 날짜와 시간 조합
         order_date = f'{txt_content[0]} {txt_content[1]}'.replace('/', '-')
 
-        # 금액 처리 (쉼표와 '원' 제거)
-        amount_str = txt_content[3]
-        amount = Decimal(sub(r'[^\d.]', "", amount_str))  # 숫자와 점만 남김
+        # 금액 처리 (쉼표와 '원' 제거) - 안전한 파싱
+        try:
+            amount_str = txt_content[3]
+            _LOGGER.info(f"금액 파싱 시도: amount_str='{amount_str}'")
+
+            # 숫자와 점만 남김
+            cleaned_amount = sub(r'[^\d.]', "", amount_str)
+            _LOGGER.info(f"정리된 금액: cleaned_amount='{cleaned_amount}'")
+
+            if not cleaned_amount:
+                _LOGGER.info(f"정리된 금액이 비어있음 (txt_content: {txt_content})")
+                return ParseResult(data={}, is_valid=False)
+
+            amount = Decimal(cleaned_amount)
+
+        except (ValueError, Exception) as e:
+            _LOGGER.error(f"금액 파싱 실패: {e}, amount_str='{txt_content[3] if len(txt_content) > 3 else 'N/A'}', txt_content: {txt_content}")
+            return ParseResult(data={}, is_valid=False)
 
         if not amount:
             _LOGGER.info(f"amount가 0임 (txt_content: {txt_content})")
