@@ -326,12 +326,7 @@ class DepositCheckAPI:
     def _handle_api_response(self, channel_id: str, resp: requests.Response) -> ProcessingResult:
         """API 응답 처리"""
         if resp.status_code == HTTPStatus.OK:
-            # 200 OK면 무조건 성공 이모지
-            resp_data = resp.json()
-            return ProcessingResult(
-                emoji_name='white_check_mark',
-                message=f"처리 성공\n - 응답: {resp_data}"
-            )
+            return self._handle_success_response(channel_id, resp)
         elif resp.status_code == HTTPStatus.BAD_REQUEST:
             return self._handle_bad_request_response(channel_id, resp)
         else:
@@ -339,6 +334,52 @@ class DepositCheckAPI:
             return ProcessingResult(
                 emoji_name='x',
                 message=f"처리 실패\n - 상태코드: {resp.status_code}\n - 응답: {resp.text}"
+            )
+
+    def _handle_success_response(self, channel_id: str, resp: requests.Response) -> ProcessingResult:
+        """성공 응답 처리 - 기존 로직 복원"""
+        resp_data = resp.json()
+
+        # HOT_AUTO, SNS_TOOL 채널
+        if channel_id in [_HOT_AUTO_DEPOSIT_CHANNEL_ID, _SNS_TOOL_DEPOSIT_CHANNEL_ID]:
+            return ProcessingResult(
+                emoji_name='white_check_mark',
+                message=(
+                    "처리 성공\n"
+                    f" - 사이트이름: {resp_data.get('site_name', 'Unknown')}\n"
+                    f" - 사이트아이디: {resp_data.get('site_id', 'Unknown')}"
+                    f"({resp_data.get('idx', 'Unknown')})"
+                )
+            )
+
+        # 셀프마케팅 플랫폼 채널들 (일본/SMS)
+        elif channel_id in ChannelGroups.SELF_MARKETING_CHANNELS:
+            if resp_data.get('status') == 'success':
+                # payment_log_idx 체크로 실제 성공/실패 구분
+                if "'payment_log_idx': None" in str(resp_data):
+                    return ProcessingResult(
+                        emoji_name='x',
+                        message=f"처리 실패\n - 에러: {resp.text}. 내역이 저장되었습니다."
+                    )
+                else:
+                    return ProcessingResult(
+                        emoji_name='white_check_mark',
+                        message=f"처리 성공\n - 사이트 정보: {resp_data}. 포인트가 충전되었습니다."
+                    )
+            else:
+                # status가 success가 아닌 경우 응답 없음
+                return ProcessingResult(emoji_name=None, message=None)
+
+        # HOT_PARTNERS 채널
+        else:
+            emoji_name = 'white_check_mark'
+            # is_success_charge 필드 체크
+            if resp_data.get('data', {}).get('is_success_charge', "True") == 'False':
+                emoji_name = 'x'
+
+            return ProcessingResult(
+                emoji_name=emoji_name,
+                message=f"처리 성공\n - 사이트 정보: {resp_data.get('data', '')}"
             )
 
     def _handle_bad_request_response(self, channel_id: str, resp: requests.Response) -> ProcessingResult:
