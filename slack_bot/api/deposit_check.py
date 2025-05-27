@@ -3,12 +3,11 @@ from datetime import datetime
 from decimal import Decimal
 from http import HTTPStatus
 from re import sub
-from typing import Any, Dict, Final, List, Optional, Union
+from typing import Any, Dict, Final, List, Union
 
 import requests
 from advertools import emoji
 
-# from common import aio_log_method_call, config, set_logger
 from common import config, set_logger
 from common.redis import redis_client
 from slack_bot.slack import SlackAPI
@@ -96,8 +95,8 @@ class ParseResult:
 
 @dataclass
 class ProcessingResult:
-    emoji_name: Optional[str] = None
-    message: Optional[str] = None
+    emoji_name: str | None = None
+    message: str | None = None
 
 _PKG = 'deposit_check'
 _LOGGER = set_logger(_PKG)
