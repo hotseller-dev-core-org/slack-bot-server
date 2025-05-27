@@ -80,6 +80,7 @@ API_URL_MAPPING = {
     _HOT_AUTO_DEPOSIT_CHANNEL_ID: APIConfig.get_url('HOT_AUTO'),
     _SNS_TOOL_DEPOSIT_CHANNEL_ID: APIConfig.get_url('SNS_TOOL'),
     _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: APIConfig.get_url('HOT_PARTNERS'),
+    _MONEYCOON_DEPOSIT_CHANNEL_ID: APIConfig.get_url('HOT_AUTO'),  # MONEYCOON도 HOT_AUTO와 동일한 URL 사용
 }
 
 # SELF_MARKETING 채널들 (HOT_PARTNERS 제외)
@@ -177,6 +178,11 @@ class DepositCheckAPI:
         """메시지 파싱"""
         txt = txt_list if isinstance(txt_list, str) else ' '.join(txt_list)
         txt_content = txt.split()
+
+        _LOGGER.info(f"[DEBUG] 메시지 파싱 시작 - channel_id: {channel_id}")
+        _LOGGER.info(f"[DEBUG] 원본 텍스트: '{txt}'")
+        _LOGGER.info(f"[DEBUG] 분할된 텍스트: {txt_content}")
+        _LOGGER.info(f"[DEBUG] 요소 개수: {len(txt_content)}")
 
         try:
             if channel_id in ChannelGroups.JAPAN_CHANNELS:
@@ -313,6 +319,9 @@ class DepositCheckAPI:
     def _get_api_url(self, channel_id: str) -> str:
         """채널별 API URL 반환 (기존 로직과 동일)"""
         _LOGGER.info(f"[DEBUG] _get_api_url 호출 - channel_id: {channel_id}, IS_TEST_MODE: {IS_TEST_MODE}")
+        _LOGGER.info(f"[DEBUG] _SERVICE_TEAM_SMS_CHANNEL_ID: {_SERVICE_TEAM_SMS_CHANNEL_ID}")
+        _LOGGER.info(f"[DEBUG] channel_id == _SERVICE_TEAM_SMS_CHANNEL_ID: {channel_id == _SERVICE_TEAM_SMS_CHANNEL_ID}")
+        _LOGGER.info(f"[DEBUG] channel_id in ChannelGroups.SELF_MARKETING_CHANNELS: {channel_id in ChannelGroups.SELF_MARKETING_CHANNELS}")
 
         # 기존 로직과 동일한 매핑
         if channel_id == _HOT_AUTO_DEPOSIT_CHANNEL_ID:
@@ -321,6 +330,8 @@ class DepositCheckAPI:
             return APIConfig.get_url('SNS_TOOL')
         elif channel_id == _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID:
             return APIConfig.get_url('HOT_PARTNERS')
+        elif channel_id == _MONEYCOON_DEPOSIT_CHANNEL_ID:
+            return APIConfig.get_url('HOT_AUTO')  # MONEYCOON은 HOT_AUTO와 동일한 URL
         elif channel_id in ChannelGroups.SELF_MARKETING_CHANNELS:
             return APIConfig.get_url('SELF_MARKETING')
         else:

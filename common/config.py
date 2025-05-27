@@ -21,7 +21,7 @@ class Config(BaseModel):
 
     # Slack App Token
     SLACK_APP_TOKEN: Final[str] = os.getenv('SLACK_APP_TOKEN', "")
-    SLACK_BOT_TEST_MODE: Final[bool] = bool(os.getenv('SLACK_BOT_TEST_MODE', "False"))
+    SLACK_BOT_TEST_MODE: Final[bool] = os.getenv('SLACK_BOT_TEST_MODE', "False").lower() in ('true', '1', 'yes', 'on')
 
     # 채널 ID
     HOT_AUTO_DEPOSIT_CHANNEL_ID: Final[str] = os.getenv('HOT_AUTO_DEPOSIT_CHANNEL_ID', "C025V0PJZ1P")
