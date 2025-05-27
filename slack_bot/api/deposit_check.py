@@ -80,7 +80,7 @@ API_URL_MAPPING = {
     _HOT_AUTO_DEPOSIT_CHANNEL_ID: APIConfig.get_url('HOT_AUTO'),
     _SNS_TOOL_DEPOSIT_CHANNEL_ID: APIConfig.get_url('SNS_TOOL'),
     _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: APIConfig.get_url('HOT_PARTNERS'),
-    _MONEYCOON_DEPOSIT_CHANNEL_ID: APIConfig.get_url('HOT_AUTO'),  # MONEYCOON도 HOT_AUTO와 동일한 URL 사용
+    _MONEYCOON_DEPOSIT_CHANNEL_ID: APIConfig.get_url('SELF_MARKETING'),  # 셀마플팀은 SELF_MARKETING API 사용
 }
 
 # SELF_MARKETING 채널들 (HOT_PARTNERS 제외)
@@ -323,7 +323,7 @@ class DepositCheckAPI:
         elif channel_id == _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID:
             return APIConfig.get_url('HOT_PARTNERS')
         elif channel_id == _MONEYCOON_DEPOSIT_CHANNEL_ID:
-            return APIConfig.get_url('HOT_AUTO')  # MONEYCOON은 HOT_AUTO와 동일한 URL
+            return APIConfig.get_url('SELF_MARKETING')  # 셀마플팀은 SELF_MARKETING API 사용
         elif channel_id in ChannelGroups.SELF_MARKETING_CHANNELS:
             return APIConfig.get_url('SELF_MARKETING')
         else:

@@ -76,20 +76,20 @@ SLACK_BOT_TEST_MODE=false
 
 #### 🚀 운영 모드
 - **채널별 설정**:
-  - HOT_AUTO (그로스코어): `C025V0PJZ1P`
-  - SNS_TOOL: `C08CHA1TZQW`
-  - MONEYCOON: `C0376RS8KLZ`
-  - JAPAN_NIHON: `C05LS9VF5DY`
-  - JAPAN_TOMO: `C06C3HG1Q0K`
-  - JAPAN_FOLLOWERLAB: `C08F10YTBKK`
-  - HOT_PARTNERS: `C08BR1P920H`
-  - SMS: `C05NYEWHK1S`
+  - 그코팀-입금-알림방: `C025V0PJZ1P`
+  - 툴-입금-알림방: `C08CHA1TZQW`
+  - 셀마플팀-입금-알림방: `C0376RS8KLZ`
+  - 니혼-입금-알림방: `C05LS9VF5DY`
+  - lab-입금-알림방: `C06C3HG1Q0K`
+  - lab-입금-알림방: `C08F10YTBKK`
+  - 서비스실-핫파트너스-입금-알림방: `C08BR1P920H`
+  - 서비스실-문자메세지-알림방: `C05NYEWHK1S`
 
 - **API URLs**:
-  - HOT_AUTO: `http://10.0.23.222/api/point`
+  - 그코: `http://10.0.23.222/api/point`
   - SNS_TOOL: `https://api.snstool.co.kr/api/point`
   - HOT_PARTNERS: `http://10.0.2.216/partner/point/auto-charge`
-  - SELF_MARKETING: `http://10.0.2.21/api/payment/deposit`
+  - SELF_MARKETING (일본/SMS/셀마플팀): `http://10.0.2.21/api/payment/deposit`
 
 ---
 
