@@ -179,7 +179,7 @@ if "입금" not in txt_content:  # 어디든 포함되면 OK
 
 ## 🧪 로그 확인
 ```bash
-cf /var/log/slack-bot-server
+cd /var/log/slack-bot-server
 tail -f _____.log
 ```
 
