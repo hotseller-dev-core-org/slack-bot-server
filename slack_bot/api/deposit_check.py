@@ -240,22 +240,14 @@ class DepositCheckAPI:
 
     def _parse_standard_message(self, txt_content: List[str]) -> ParseResult:
         """표준 메시지 파싱"""
-        # HOT_PARTNERS 채널의 경우 7개 요소: ['2025/05/26', '18:20', '입금', '10,000원', '백다예', '029***4650451', '기업']
-        # 기존 채널의 경우 5개 요소: ['2025/05/26', '18:20', '입금', '10,000원', '백다예']
-
-        # TODO: 확인 필요
-        # if len(txt_content) not in [5, 7]:
-        #     _LOGGER.info(f"유효하지 않는 문자임 (5 또는 7개 요소 필요) (txt_content: {txt_content})")
-        #     return ParseResult(data={}, is_valid=False)
-
         # NOTE: 출금 메세지를 avoid 하기 위함
         if "입금" not in txt_content:
             _LOGGER.info(f"'입금'이 포함 안됨.(txt_content: {txt_content})")
             return ParseResult(data={}, is_valid=False)
 
-        # 최소 5개 요소 체크 (안전성을 위해, 기존 로직은 != 5 였음)
-        if len(txt_content) < 5:
-            _LOGGER.info(f"요소가 부족함 (최소 5개 필요) (txt_content: {txt_content})")
+        # 기존 로직과 동일: 정확히 5개 요소만 허용
+        if len(txt_content) != 5:
+            _LOGGER.info(f"유효하지 않는 문자임 (5개 요소 필요) (txt_content: {txt_content})")
             return ParseResult(data={}, is_valid=False)
 
         # 날짜와 시간 조합

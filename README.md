@@ -153,18 +153,15 @@ JAPAN_SMS_CHANNELS = [...]
 SELF_MARKETING_CHANNELS = [...]  # 일본 + SMS 포함
 ```
 
-#### 5. **유연한 메시지 파싱**
+#### 5. **유연한 검증**
 ```python
 # 기존: 엄격한 검증
-if len(txt_content) != 5:
-    return
 if txt_content[2] != "입금":
     return
 
 # 현재: 유연한 검증
-if "입금" not in txt_content:  # 어디든 포함되면 OK
+if "입금" not in txt_content:
     return
-# 요소 개수 제한 없음
 ```
 
 ### 🔄 동일하게 유지된 부분
