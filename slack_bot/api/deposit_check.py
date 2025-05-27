@@ -311,7 +311,7 @@ class DepositCheckAPI:
             }
 
             _LOGGER.info(f"[API 호출 정보]\nURL: {api_url}\nHeaders: {headers}\nData: {parse_res}")
-            resp = requests.post(api_url, json=parse_res, headers=headers, verify=True)
+            resp = requests.post(api_url, json=parse_res, headers=headers, verify=False)
             _LOGGER.info(f"[API 호출 결과]\nresp: {resp}\nresp.text: {resp.text}")
 
             result = self._handle_api_response(channel_id, resp)
