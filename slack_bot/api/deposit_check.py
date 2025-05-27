@@ -58,7 +58,7 @@ class APIConfig:
 # 에러 코드 상수
 class ErrorCodes:
     DUPLICATE_DEPOSIT_PARTNER = ['300706', '300711']
-    SELF_MARKETING_IGNORE_CODE = ['001006']
+    SELF_MARKETING_IGNORE_CODE = ['001006', '001002']  # 001002: 문자 파싱 실패
 
 # 채널 그룹 정의
 class ChannelGroups:
@@ -72,7 +72,8 @@ class ChannelGroups:
         _JAPAN_NIHON_DEPOSIT_CHANNEL_ID,
         _JAPAN_TOMO_DEPOSIT_CHANNEL_ID,
         _JAPAN_FOLLOWERLAB_DEPOSIT_CHANNEL_ID,
-        _SERVICE_TEAM_SMS_CHANNEL_ID
+        _SERVICE_TEAM_SMS_CHANNEL_ID,
+        _MONEYCOON_DEPOSIT_CHANNEL_ID,  # 셀마플팀도 SELF_MARKETING API 사용
     ]
 
 # API URL 매핑
