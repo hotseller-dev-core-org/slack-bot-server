@@ -46,7 +46,7 @@ class APIConfig:
     # 테스트 환경 URL
     TEST_URLS = {
         'HOT_AUTO': "https://api.growthcore.co.kr/api/point", # TODO: TEST완료
-        'SNS_TOOL': "https://api.snstool.co.kr/api/point",
+        'SNS_TOOL': "https://api.snstool.co.kr/api/point",  # TODO: TEST완료
         'HOT_PARTNERS': "https://api.self-marketing-platform.co.kr/api/payment/deposit", # TODO: TEST완료
         'SELF_MARKETING': "https://api.self-marketing-platform.co.kr/api/payment/deposit", # TODO: TEST완료
     }
@@ -297,7 +297,7 @@ class DepositCheckAPI:
         try:
             api_url = self._get_api_url(channel_id)
             # TODO: TEST
-            api_url = "https://api.snstool.co.kr/api/point"
+            api_url = "https://api.growthcore.co.kr/api/point"
             _LOGGER.info(f"호출 API URL: {api_url}")
 
             # HOT_AUTO 채널의 경우 thread_ts 추가
