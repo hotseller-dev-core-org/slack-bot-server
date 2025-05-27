@@ -25,9 +25,7 @@ class ChannelConfig:
 
 # 채널 ID 상수
 _HOT_AUTO_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C025V0PJZ1P")
-# TODO: TEST
-# _SNS_TOOL_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C08CHA1TZQW")
-_SNS_TOOL_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C06MFPLN81W")
+_SNS_TOOL_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C08CHA1TZQW")
 _MONEYCOON_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C0376RS8KLZ")
 _JAPAN_NIHON_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C05LS9VF5DY")
 _JAPAN_TOMO_DEPOSIT_CHANNEL_ID: Final[str] = ChannelConfig.get_channel_id("C06C3HG1Q0K")
@@ -298,6 +296,8 @@ class DepositCheckAPI:
         api_url = ""
         try:
             api_url = self._get_api_url(channel_id)
+            # TODO: TEST
+            api_url = "https://api.snstool.co.kr/api/point"
             _LOGGER.info(f"호출 API URL: {api_url}")
 
             # HOT_AUTO 채널의 경우 thread_ts 추가
