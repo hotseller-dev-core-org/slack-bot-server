@@ -82,6 +82,10 @@ API_URL_MAPPING = {
     _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: APIConfig.get_url('HOT_PARTNERS'),
 }
 
+# SELF_MARKETING 채널들 (HOT_PARTNERS 제외)
+for channel_id in ChannelGroups.SELF_MARKETING_CHANNELS:
+    API_URL_MAPPING[channel_id] = APIConfig.get_url('SELF_MARKETING')
+
 JAPAN_MAPPING_INFO: Dict[str, str] = {
     _JAPAN_NIHON_DEPOSIT_CHANNEL_ID: 'snsmart00@outlook.com',
     _JAPAN_TOMO_DEPOSIT_CHANNEL_ID: 'snstomo',
@@ -126,6 +130,14 @@ class DepositCheckAPI:
         _LOGGER.info(f"DepositCheckAPI 초기화 - 모드: {mode}")
         if IS_TEST_MODE:
             _LOGGER.info(f"테스트 채널: {TEST_CHANNEL_ID}")
+
+        # 채널 ID 상수값들 로깅
+        _LOGGER.info("[INIT] 채널 ID 상수값들:")
+        _LOGGER.info(f"[INIT] _HOT_AUTO_DEPOSIT_CHANNEL_ID: {_HOT_AUTO_DEPOSIT_CHANNEL_ID}")
+        _LOGGER.info(f"[INIT] _SNS_TOOL_DEPOSIT_CHANNEL_ID: {_SNS_TOOL_DEPOSIT_CHANNEL_ID}")
+        _LOGGER.info(f"[INIT] _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: {_SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID}")
+        _LOGGER.info(f"[INIT] _SERVICE_TEAM_SMS_CHANNEL_ID: {_SERVICE_TEAM_SMS_CHANNEL_ID}")
+        _LOGGER.info(f"[INIT] API_URL_MAPPING: {API_URL_MAPPING}")
 
     async def processing(
         self,
@@ -279,36 +291,19 @@ class DepositCheckAPI:
         return new_txt
 
     def _get_api_url(self, channel_id: str) -> str:
-        """채널별 API URL 반환"""
+        """채널별 API URL 반환 (기존 로직과 동일)"""
         _LOGGER.info(f"[DEBUG] _get_api_url 호출 - channel_id: {channel_id}, IS_TEST_MODE: {IS_TEST_MODE}")
-        _LOGGER.info(f"[DEBUG] _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID: {_SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID}")
-        _LOGGER.info(f"[DEBUG] API_URL_MAPPING keys: {list(API_URL_MAPPING.keys())}")
 
-        # 테스트 모드에서는 실제 채널 ID가 들어올 수 있으므로 매핑 처리
-        if IS_TEST_MODE:
-            # 실제 채널 ID를 서비스별로 매핑
-            if channel_id in ["C025V0PJZ1P"]:  # HOT_AUTO
-                return APIConfig.get_url('HOT_AUTO')
-            elif channel_id in ["C08CHA1TZQW"]:  # SNS_TOOL
-                return APIConfig.get_url('SNS_TOOL')
-            elif channel_id in ["C08BR1P920H"]:  # HOT_PARTNERS
-                return APIConfig.get_url('HOT_PARTNERS')
-            elif channel_id in ["C05LS9VF5DY", "C06C3HG1Q0K", "C08F10YTBKK", "C05NYEWHK1S"]:  # SELF_MARKETING
-                return APIConfig.get_url('SELF_MARKETING')
-            elif channel_id == TEST_CHANNEL_ID:  # 테스트 채널에서 온 경우 기본값
-                return APIConfig.get_url('HOT_AUTO')  # 기본값으로 HOT_AUTO 사용
-
-        # 운영 모드에서는 기존 로직 사용
-        if channel_id in API_URL_MAPPING:
-            url = API_URL_MAPPING[channel_id]
-            _LOGGER.info(f"[DEBUG] API_URL_MAPPING에서 찾음 - URL: {url}")
-            return url
+        # 기존 로직과 동일한 매핑
+        if channel_id == _HOT_AUTO_DEPOSIT_CHANNEL_ID:
+            return APIConfig.get_url('HOT_AUTO')
+        elif channel_id == _SNS_TOOL_DEPOSIT_CHANNEL_ID:
+            return APIConfig.get_url('SNS_TOOL')
+        elif channel_id == _SERVICE_TEAM_HOT_PARTNERS_DEPOSIT_CHANNEL_ID:
+            return APIConfig.get_url('HOT_PARTNERS')
         elif channel_id in ChannelGroups.SELF_MARKETING_CHANNELS:
-            url = APIConfig.get_url('SELF_MARKETING')
-            _LOGGER.info(f"[DEBUG] SELF_MARKETING_CHANNELS에서 찾음 - URL: {url}")
-            return url
+            return APIConfig.get_url('SELF_MARKETING')
         else:
-            _LOGGER.error(f"[DEBUG] 매핑에서 찾지 못함 - channel_id: {channel_id}")
             raise Exception(f"Not supported channel_id. ({channel_id})")
 
     async def _process_api_call(self, channel_id: str, thread_ts: str, parse_res: Dict[str, Any]) -> None:
