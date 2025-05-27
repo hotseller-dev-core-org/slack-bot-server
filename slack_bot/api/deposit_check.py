@@ -187,7 +187,7 @@ class DepositCheckAPI:
         try:
             if channel_id in ChannelGroups.JAPAN_CHANNELS:
                 return self._parse_japan_message(channel_id, txt, txt_content, elements_list)
-            elif channel_id == _SERVICE_TEAM_SMS_CHANNEL_ID:
+            elif channel_id in [_SERVICE_TEAM_SMS_CHANNEL_ID, _MONEYCOON_DEPOSIT_CHANNEL_ID]:
                 return self._parse_sms_message(txt)
             else:
                 return self._parse_standard_message(txt_content)
